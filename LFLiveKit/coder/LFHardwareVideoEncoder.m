@@ -8,6 +8,8 @@
 #import "LFHardwareVideoEncoder.h"
 #import <VideoToolbox/VideoToolbox.h>
 
+#define BUFFER_LENGTH 4
+
 @interface LFHardwareVideoEncoder (){
     VTCompressionSessionRef compressionSession;
     NSInteger frameCount;
@@ -198,8 +200,8 @@ static void VideoCompressonOutputCallback(void *VTref, void *VTFrameRef, OSStatu
             videoFrame.isKeyFrame = keyframe;
             videoFrame.sps = videoEncoder->sps;
             videoFrame.pps = videoEncoder->pps;
-
-            if (videoEncoder.h264Delegate && [videoEncoder.h264Delegate respondsToSelector:@selector(videoEncoder:videoFrame:)]) {
+            
+            if (NO == keyframe && videoEncoder.h264Delegate && [videoEncoder.h264Delegate respondsToSelector:@selector(videoEncoder:videoFrame:)]) {
                 [videoEncoder.h264Delegate videoEncoder:videoEncoder videoFrame:videoFrame];
             }
 
@@ -221,6 +223,33 @@ static void VideoCompressonOutputCallback(void *VTref, void *VTFrameRef, OSStatu
             bufferOffset += AVCCHeaderLength + NALUnitLength;
 
         }
+        
+        // key frame 组合sps，pps
+        if(keyframe){
+            
+            NSMutableData *keyFrameComposite = [[NSMutableData alloc] init];
+
+            [LFHardwareVideoEncoder appendWithBigEndian:keyFrameComposite length:videoEncoder->sps.length];
+            [keyFrameComposite appendBytes:videoEncoder->sps.bytes length:videoEncoder->sps.length];
+            
+            [LFHardwareVideoEncoder appendWithBigEndian:keyFrameComposite length:videoEncoder->pps.length];
+            [keyFrameComposite appendBytes:videoEncoder->pps.bytes length:videoEncoder->pps.length];
+            
+            [keyFrameComposite appendBytes:dataPointer length:totalLength];
+            
+            LFVideoFrame *videoFrame = [LFVideoFrame new];
+            videoFrame.timestamp = timeStamp;
+            videoFrame.data = [[NSData alloc] initWithBytes:keyFrameComposite.bytes length:keyFrameComposite.length];
+            videoFrame.isKeyFrame = keyframe;
+            videoFrame.sps = videoEncoder->sps;
+            videoFrame.pps = videoEncoder->pps;
+            videoFrame.isH264RawData = YES;
+            
+            if (videoEncoder.h264Delegate && [videoEncoder.h264Delegate respondsToSelector:@selector(videoEncoder:videoFrame:)]) {
+                [videoEncoder.h264Delegate videoEncoder:videoEncoder videoFrame:videoFrame];
+            }
+            
+        }
 
     }
 }
@@ -236,6 +265,20 @@ static void VideoCompressonOutputCallback(void *VTref, void *VTFrameRef, OSStatu
     NSString *documentsDirectory = [paths objectAtIndex:0];
     NSString *writablePath = [documentsDirectory stringByAppendingPathComponent:filename];
     return writablePath;
+}
+
++ (void)appendWithBigEndian:(NSMutableData*) data length:(NSUInteger)length{
+    
+    assert(BUFFER_LENGTH >= 4);
+    
+    unsigned char lengthBuffer[BUFFER_LENGTH];
+    int bufferIndex = 0;
+    lengthBuffer[bufferIndex++] = (length >> 24) & 0xff;
+    lengthBuffer[bufferIndex++] = (length >> 16) & 0xff;
+    lengthBuffer[bufferIndex++] = (length >>  8) & 0xff;
+    lengthBuffer[bufferIndex++] = (length) & 0xff;
+    [data appendBytes:lengthBuffer length:BUFFER_LENGTH];
+    
 }
 
 @end

@@ -12,6 +12,7 @@
 @interface LFVideoFrame : LFFrame
 
 @property (nonatomic, assign) BOOL isKeyFrame;
+@property (nonatomic, assign) BOOL isH264RawData;
 @property (nonatomic, strong) NSData *sps;
 @property (nonatomic, strong) NSData *pps;
 

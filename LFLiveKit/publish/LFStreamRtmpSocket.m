@@ -172,15 +172,17 @@ SAVC(mp4a);
             LFFrame *frame = [_self.buffer popFirstObject];
             if ([frame isKindOfClass:[LFVideoFrame class]]) {
                 if (!_self.sendVideoHead) {
-                    _self.sendVideoHead = YES;
+                    
                     if(!((LFVideoFrame*)frame).sps || !((LFVideoFrame*)frame).pps){
                         _self.isSending = NO;
                         return;
                     }
+                    
                     [_self sendVideoHeader:(LFVideoFrame *)frame];
-                } else {
-                    [_self sendVideo:(LFVideoFrame *)frame];
+                    _self.sendVideoHead = YES;
                 }
+                    
+                [_self sendVideo:(LFVideoFrame *)frame];
             } else {
                 if (!_self.sendAudioHead) {
                     _self.sendAudioHead = YES;
@@ -398,7 +400,7 @@ Failed:
 - (void)sendVideo:(LFVideoFrame *)frame {
 
     NSInteger i = 0;
-    NSInteger rtmpLength = frame.data.length + 9;
+    NSInteger rtmpLength = frame.data.length + (frame.isH264RawData ? 5 : 9);
     unsigned char *body = (unsigned char *)malloc(rtmpLength);
     memset(body, 0, rtmpLength);
 
@@ -411,10 +413,14 @@ Failed:
     body[i++] = 0x00;
     body[i++] = 0x00;
     body[i++] = 0x00;
-    body[i++] = (frame.data.length >> 24) & 0xff;
-    body[i++] = (frame.data.length >> 16) & 0xff;
-    body[i++] = (frame.data.length >>  8) & 0xff;
-    body[i++] = (frame.data.length) & 0xff;
+    
+    if(NO == frame.isH264RawData){
+        body[i++] = (frame.data.length >> 24) & 0xff;
+        body[i++] = (frame.data.length >> 16) & 0xff;
+        body[i++] = (frame.data.length >>  8) & 0xff;
+        body[i++] = (frame.data.length) & 0xff;
+    }
+    
     memcpy(&body[i], frame.data.bytes, frame.data.length);
 
     [self sendPacket:RTMP_PACKET_TYPE_VIDEO data:body size:(rtmpLength) nTimestamp:frame.timestamp];
