@@ -198,7 +198,6 @@
 				TargetAttributes = {
 					84D8B4251D75778B00752B56 = {
 						CreatedOnToolsVersion = 7.3.1;
-						DevelopmentTeam = 374V37FD2E;
 					};
 				};
 			};
@@ -406,7 +405,7 @@
 			baseConfigurationReference = 289A9C4510CD7EA6F4CE9897 /* Pods-LFLiveKitDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 374V37FD2E;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = LFLiveKitDemo/Info.plist;
@@ -414,7 +413,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.youku.zhou;
+				PRODUCT_BUNDLE_IDENTIFIER = com.youku.LaiFeng;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -424,7 +423,7 @@
 			baseConfigurationReference = 96E1231310083A3881AD2AB6 /* Pods-LFLiveKitDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 374V37FD2E;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = LFLiveKitDemo/Info.plist;
@@ -432,7 +431,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.youku.zhou;
+				PRODUCT_BUNDLE_IDENTIFIER = com.youku.LaiFeng;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
